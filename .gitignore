@@ -1,0 +1,10 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local config files
+*.local

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="محاسبه‌گر پیشرفته ریسک سرطان سینه بر اساس مدل Gail">
+    <title>محاسبه‌گر ریسک سرطان سینه | Gail Risk Calculator</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Vazir Font (Farsi) -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/wizard.css">
+    <link rel="stylesheet" href="assets/css/results.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" aria-label="تغییر تم">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Language Toggle (Optional) -->
+    <div class="language-toggle">
+        <button class="lang-btn active" data-lang="fa">فارسی</button>
+        <button class="lang-btn" data-lang="en">English</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Hero Section -->
+        <section id="heroSection" class="hero-section">
+            <div class="hero-content fade-in">
+                <div class="logo-container">
+                    <i class="fas fa-ribbon ribbon-icon"></i>
+                </div>
+                <h1 class="hero-title">
+                    محاسبه‌گر ریسک سرطان سینه
+                    <span class="subtitle">Breast Cancer Risk Assessment</span>
+                </h1>
+                <p class="hero-description">
+                    ابزار پیشرفته برآورد احتمال ابتلا به سرطان سینه بر اساس مدل Gail
+                    <br>
+                    <small>مورد تأیید National Cancer Institute (NCI)</small>
+                </p>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number" data-target="1000000">0</div>
+                        <div class="stat-label">کاربر</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="stat-number" data-target="99">0</div>
+                        <div class="stat-label">% دقت</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-globe"></i>
+                        <div class="stat-number" data-target="12">0</div>
+                        <div class="stat-label">گروه نژادی</div>
+                    </div>
+                </div>
+
+                <button id="startAssessment" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i>
+                    شروع ارزیابی
+                    <span class="btn-shine"></span>
+                </button>
+
+                <div class="disclaimer-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>
+                        این ابزار یک برآورد آماری است و نباید جایگزین مشاوره پزشکی شود.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Animated Background -->
+            <div class="bg-animation">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+            </div>
+        </section>
+
+        <!-- Wizard Form Section -->
+        <section id="wizardSection" class="wizard-section" style="display: none;">
+            
+            <!-- Progress Bar -->
+            <div class="wizard-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-steps" id="progressSteps">
+                    <!-- Dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="wizard-container">
+                
+                <!-- Step 1: Eligibility -->
+                <div class="wizard-step active" data-step="1">
+                    <div class="step-header">
+                        <i class="fas fa-user-check step-icon"></i>
+                        <h2 class="step-title">بررسی واجد شرایط بودن</h2>
+                        <p class="step-description">لطفاً به سوالات زیر پاسخ دهید</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            آیا سابقه سرطان سینه، DCIS، LCIS یا رادیوتراپی قفسه سینه دارید؟
+                            <i class="fas fa-question-circle tooltip" data-tooltip="سابقه شخصی از سرطان سینه یا درمان‌های مرتبط"></i>
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="has_breast_cancer_history" value="false" checked>
+                                <div class="radio-content">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>خیر</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="has_breast_cancer_history" value="true">
+                                <div class="radio-content">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>بله</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="warning-message" id="cancerHistoryWarning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            متأسفانه این ابزار برای افرادی که سابقه سرطان سینه دارند مناسب نیست.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            آیا جهش ژنتیکی BRCA1 یا BRCA2 دارید؟
+                            <i class="fas fa-question-circle tooltip" data-tooltip="جهش‌های ژنتیکی که ریسک سرطان را افزایش می‌دهند"></i>
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="has_genetic_mutation" value="no" checked>
+                                <div class="radio-content">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>خیر</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="has_genetic_mutation" value="yes">
+                                <div class="radio-content">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>بله</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="has_genetic_mutation" value="unknown">
+                                <div class="radio-content">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span>نمی‌دانم</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="warning-message" id="geneticWarning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            برای افرادی با جهش BRCA، مشاوره ژنتیک توصیه می‌شود.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Demographics -->
+                <div class="wizard-step" data-step="2">
+                    <div class="step-header">
+                        <i class="fas fa-id-card step-icon"></i>
+                        <h2 class="step-title">اطلاعات جمعیت‌شناختی</h2>
+                        <p class="step-description">سن و نژاد شما</p>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">
+                                سن شما
+                                <i class="fas fa-question-circle tooltip" data-tooltip="سن فعلی شما (35-85 سال)"></i>
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                                <input type="number" 
+                                       id="age" 
+                                       name="age" 
+                                       class="form-control" 
+                                       placeholder="مثال: 45" 
+                                       min="35" 
+                                       max="85" 
+                                       required>
+                                <span class="input-unit">سال</span>
+                            </div>
+                            <div class="age-slider">
+                                <input type="range" id="ageSlider" min="35" max="85" value="45">
+                                <div class="slider-labels">
+                                    <span>35</span>
+                                    <span>60</span>
+                                    <span>85</span>
+                                </div>
+                            </div>
+                            <small class="form-hint">این ابزار برای سنین 35 تا 85 سال طراحی شده است</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            نژاد/قومیت
+                        </label>
+                        <select id="race" name="race" class="form-control select-custom" required>
+                            <option value="">انتخاب کنید...</option>
+                            <option value="1">سفیدپوست/سایر</option>
+                            <option value="2">آفریقایی-آمریکایی</option>
+                            <option value="3">اسپانیایی‌تبار/لاتین</option>
+                            <option value="4">آسیایی/جزایر اقیانوس آرام</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="subraceGroup" style="display: none;">
+                        <label class="form-label">
+                            زیرگروه آسیایی
+                        </label>
+                        <select id="sub_race" name="sub_race" class="form-control select-custom">
+                            <option value="">انتخاب کنید...</option>
+                            <option value="7">چینی</option>
+                            <option value="8">ژاپنی</option>
+                            <option value="9">فیلیپینی</option>
+                            <option value="10">هاوایی</option>
+                            <option value="11">سایر جزایر اقیانوس آرام</option>
+                            <option value="12">سایر آسیایی</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Step 3: Medical History -->
+                <div class="wizard-step" data-step="3">
+                    <div class="step-header">
+                        <i class="fas fa-notes-medical step-icon"></i>
+                        <h2 class="step-title">سابقه پزشکی</h2>
+                        <p class="step-description">اطلاعات مربوط به بیوپسی و سوابق سینه</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            آیا تاکنون بیوپسی سینه (با تشخیص خوش‌خیم) داشته‌اید؟
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="ever_had_biopsy" value="yes">
+                                <div class="radio-content">
+                                    <i class="fas fa-check"></i>
+                                    <span>بله</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="ever_had_biopsy" value="no" checked>
+                                <div class="radio-content">
+                                    <i class="fas fa-times"></i>
+                                    <span>خیر</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="ever_had_biopsy" value="unknown">
+                                <div class="radio-content">
+                                    <i class="fas fa-question"></i>
+                                    <span>نمی‌دانم</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="biopsyCountGroup" style="display: none;">
+                        <label class="form-label">
+                            چند بار بیوپسی انجام داده‌اید؟
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="number_of_biopsies" value="1">
+                                <div class="radio-content">
+                                    <span class="badge">1</span>
+                                    <span>یک بار</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="number_of_biopsies" value="2">
+                                <div class="radio-content">
+                                    <span class="badge">2+</span>
+                                    <span>دو بار یا بیشتر</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="hyperplasiaGroup" style="display: none;">
+                        <label class="form-label">
+                            آیا در بیوپسی، هایپرپلازیا آتیپیک داشته‌اید؟
+                            <i class="fas fa-question-circle tooltip" data-tooltip="رشد غیرطبیعی سلول‌ها که ریسک سرطان را افزایش می‌دهد"></i>
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="has_atypical_hyperplasia" value="yes">
+                                <div class="radio-content">
+                                    <i class="fas fa-check"></i>
+                                    <span>بله</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="has_atypical_hyperplasia" value="no" checked>
+                                <div class="radio-content">
+                                    <i class="fas fa-times"></i>
+                                    <span>خیر</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="has_atypical_hyperplasia" value="unknown">
+                                <div class="radio-content">
+                                    <i class="fas fa-question"></i>
+                                    <span>نمی‌دانم</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Reproductive History -->
+                <div class="wizard-step" data-step="4">
+                    <div class="step-header">
+                        <i class="fas fa-venus step-icon"></i>
+                        <h2 class="step-title">سابقه باروری</h2>
+                        <p class="step-description">اطلاعات مربوط به قاعدگی و زایمان</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            سن اولین قاعدگی شما چند سال بود؟
+                        </label>
+                        <div class="radio-group radio-group-vertical">
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_menarche" value="10">
+                                <div class="radio-content">
+                                    <i class="fas fa-angle-double-down"></i>
+                                    <span>7 تا 11 سال</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_menarche" value="12" checked>
+                                <div class="radio-content">
+                                    <i class="fas fa-minus"></i>
+                                    <span>12 تا 13 سال</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_menarche" value="15">
+                                <div class="radio-content">
+                                    <i class="fas fa-angle-double-up"></i>
+                                    <span>14 سال یا بیشتر</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            سن اولین زایمان زنده شما چند سال بود؟
+                        </label>
+                        <div class="radio-group radio-group-vertical">
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_first_birth" value="null">
+                                <div class="radio-content">
+                                    <i class="fas fa-ban"></i>
+                                    <span>بدون فرزند</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_first_birth" value="18">
+                                <div class="radio-content">
+                                    <span class="badge">&lt;20</span>
+                                    <span>کمتر از 20 سال</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_first_birth" value="22">
+                                <div class="radio-content">
+                                    <span class="badge">20-24</span>
+                                    <span>20 تا 24 سال</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_first_birth" value="27" checked>
+                                <div class="radio-content">
+                                    <span class="badge">25-29</span>
+                                    <span>25 تا 29 سال</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="age_at_first_birth" value="32">
+                                <div class="radio-content">
+                                    <span class="badge">30+</span>
+                                    <span>30 سال یا بیشتر</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Family History -->
+                <div class="wizard-step" data-step="5">
+                    <div class="step-header">
+                        <i class="fas fa-users step-icon"></i>
+                        <h2 class="step-title">سابقه خانوادگی</h2>
+                        <p class="step-description">اطلاعات مربوط به بستگان درجه یک</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">
+                            چند نفر از بستگان درجه یک شما (مادر، خواهر، دختر) به سرطان سینه مبتلا شده‌اند؟
+                            <i class="fas fa-question-circle tooltip" data-tooltip="فقط مادر، خواهر یا دختر شما را در نظر بگیرید"></i>
+                        </label>
+                        <div class="radio-group radio-group-vertical">
+                            <label class="radio-card">
+                                <input type="radio" name="num_first_degree_relatives" value="0" checked>
+                                <div class="radio-content">
+                                    <span class="badge">0</span>
+                                    <span>هیچکدام</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="num_first_degree_relatives" value="1">
+                                <div class="radio-content">
+                                    <span class="badge">1</span>
+                                    <span>یک نفر</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="num_first_degree_relatives" value="2">
+                                <div class="radio-content">
+                                    <span class="badge">2+</span>
+                                    <span>بیشتر از یک نفر</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <strong>نکته مهم:</strong>
+                            <p>سابقه خانوادگی یکی از مهم‌ترین فاکتورهای ریسک سرطان سینه است.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="wizard-navigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+                        <i class="fas fa-arrow-right"></i>
+                        قبلی
+                    </button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">
+                        بعدی
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-submit" id="submitBtn" style="display: none;">
+                        <i class="fas fa-calculator"></i>
+                        محاسبه ریسک
+                        <div class="spinner" style="display: none;"></div>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-container">
+                
+                <!-- Results Header -->
+                <div class="results-header">
+                    <button class="btn-back" id="backToForm">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت به فرم
+                    </button>
+                    <h1 class="results-title">
+                        <i class="fas fa-chart-bar"></i>
+                        نتایج ارزیابی ریسک
+                    </h1>
+                    <div class="results-actions">
+                        <button class="btn btn-outline" id="printBtn">
+                            <i class="fas fa-print"></i>
+                            چاپ
+                        </button>
+                        <button class="btn btn-outline" id="downloadPdfBtn">
+                            <i class="fas fa-file-pdf"></i>
+                            دانلود PDF
+                        </button>
+                        <button class="btn btn-outline" id="shareBtn">
+                            <i class="fas fa-share-alt"></i>
+                            اشتراک‌گذاری
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Patient Summary -->
+                <div class="patient-summary card">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i>
+                        خلاصه اطلاعات شما
+                    </h3>
+                    <div class="summary-grid" id="patientSummary">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Risk Score Card -->
+                <div class="risk-score-card card" id="riskScoreCard">
+                    <div class="risk-badge" id="riskBadge">
+                        <!-- Risk level badge -->
+                    </div>
+                    <div class="risk-main">
+                        <h2 class="risk-title">ریسک 5 ساله شما</h2>
+                        <div class="risk-percentage" id="absoluteRisk5year">
+                            <span class="percentage-number">--</span>
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                        <p class="risk-subtitle">احتمال ابتلا در 5 سال آینده</p>
+                    </div>
+                    <div class="risk-comparison">
+                        <div class="comparison-item">
+                            <span class="label">ریسک میانگین</span>
+                            <span class="value" id="averageRisk5year">--%</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="label">ریسک نسبی</span>
+                            <span class="value relative-risk" id="relativeRisk5year">--x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <!-- Risk Comparison Chart -->
+                    <div class="chart-card card">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            مقایسه با میانگین
+                        </h3>
+                        <canvas id="riskComparisonChart"></canvas>
+                    </div>
+
+                    <!-- Lifetime Risk Chart -->
+                    <div class="chart-card card">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            ریسک طول عمر
+                        </h3>
+                        <canvas id="lifetimeRiskChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Risk Factors Breakdown -->
+                <div class="risk-factors card">
+                    <h3 class="card-title">
+                        <i class="fas fa-list-check"></i>
+                        فاکتورهای ریسک شما
+                    </h3>
+                    <div id="riskFactorsBreakdown">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Interpretation -->
+                <div class="interpretation card">
+                    <h3 class="card-title">
+                        <i class="fas fa-comments"></i>
+                        تفسیر نتایج
+                    </h3>
+                    <div class="interpretation-content" id="interpretationText">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="recommendations card">
+                    <h3 class="card-title">
+                        <i class="fas fa-stethoscope"></i>
+                        توصیه‌های پزشکی
+                    </h3>
+                    <div class="recommendations-list" id="recommendationsList">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="disclaimer card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <h4>هشدار مهم</h4>
+                        <p id="disclaimerText">
+                            این ابزار تنها یک برآورد آماری بر اساس مدل Gail است و نمی‌تواند
+                            ریسک دقیق فردی شما را تعیین کند. این نتایج نباید جایگزین مشاوره پزشکی شوند.
+                            لطفاً با پزشک متخصص خود مشورت کنید.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">در حال محاسبه...</p>
+            <p class="loading-subtext">لطفاً صبر کنید</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/wizard.js"></script>
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/pdf.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
